@@ -24,7 +24,7 @@ import { VendorInfo } from 'src/modules/user/entities/vendor-info.entity';
 
 @Injectable()
 export class CertificateInfoService {
-  private readonly baseUrl: string = process.env.BACKEND_URL || 'http://localhost:5000';
+  private readonly baseUrl: string = process.env.BACKEND_URL || 'http://localhost:8000';
   constructor(
     @InjectRepository(SubscriptionStatus)
     private readonly subscriptionStatusRepository: Repository<SubscriptionStatus>,
