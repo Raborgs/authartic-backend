@@ -251,6 +251,7 @@ export class CertificateInfoService {
         newCertificateInfo.issued_date = null;
       } else {
         newCertificateInfo.issued = createCertificateInfoDto.number_of_certificate;
+        newCertificateInfo.issued_date = new Date(Date.now());
       }
 
       if (createCertificateInfoDto.custom_bg) {
