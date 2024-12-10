@@ -1,4 +1,4 @@
-import { IsString, IsUrl, IsArray, IsEnum, IsNotEmpty, IsOptional, IsDateString, IsInt } from 'class-validator';
+import { IsString, IsUrl, IsArray,Matches,MinLength,MaxLength, IsEnum, IsNotEmpty, IsOptional, IsDateString, IsInt } from 'class-validator';
 
 export class UpdateUserDto {
     @IsOptional()
@@ -7,7 +7,10 @@ export class UpdateUserDto {
 
     @IsOptional()
     @IsString({ message: 'Phone number must be a string.' })
-    phone?: string;
+    @Matches(/^[^a-zA-Z]*$/, { message: 'Phone number must not contain any English alphabets.' })
+    @MinLength(7, { message: 'Phone number must be at least 7 characters long.' })
+    @MaxLength(17, { message: 'Phone number must not exceed 17 characters.' })
+    phone: string;
 
     @IsOptional()
     @IsDateString({}, { message: 'Date of birth must be a valid date string.' })

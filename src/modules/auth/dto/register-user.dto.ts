@@ -1,7 +1,7 @@
 // src/auth/dto/signup.dto.ts
 import { IsString, IsUrl, IsInt,Matches, IsEmail,MinLength, IsArray,MaxLength, IsEnum, IsNotEmpty, IsOptional, IsDateString } from 'class-validator';
 import { UserRoleEnum } from 'src/modules/user/enum/user.role.enum';
-
+import { ValidateIf } from 'class-validator';
 export class RegisterDto {
 
     @IsNotEmpty({ message: 'User name is required.' })
@@ -14,12 +14,12 @@ export class RegisterDto {
 
     @IsNotEmpty({ message: 'Password is required.' })
     @IsString({ message: 'Password must be a string.' })
-    // @Matches(/(?=.*[a-z])/, { message: 'Password must contain at least one lowercase letter.' }) 
-    // @Matches(/(?=.*[A-Z])/, { message: 'Password must contain at least one uppercase letter.' }) 
-    // @Matches(/(?=.*[0-9])/, { message: 'Password must contain at least one number.' }) 
-    // @Matches(/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/, { message: 'Password must contain at least one special character.' }) 
-    // @MinLength(8, { message: 'Password must be at least 8 characters long.' }) 
-    // @MaxLength(20, { message: 'Password cannot exceed 20 characters.' }) 
+    @Matches(/(?=.*[a-z])/, { message: 'Password must contain at least one lowercase letter.' }) 
+    @Matches(/(?=.*[A-Z])/, { message: 'Password must contain at least one uppercase letter.' }) 
+    @Matches(/(?=.*[0-9])/, { message: 'Password must contain at least one number.' }) 
+    @Matches(/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/, { message: 'Password must contain at least one special character.' }) 
+    @MinLength(8, { message: 'Password must be at least 8 characters long.' }) 
+    @MaxLength(20, { message: 'Password cannot exceed 20 characters.' }) 
     password: string;
 
     @IsNotEmpty({ message: 'Role is required.' })
@@ -46,8 +46,11 @@ export class RegisterDto {
     about_brand?: string;
 
     @IsOptional()
+    @ValidateIf((o) => o.website_url !== '' && o.website_url !== null)
     @IsString({ message: 'Website URL must be a string.' })
-    @IsUrl({}, { message: 'Website URL must be a valid URL.' })
+    @Matches(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/, {
+        message: 'Website URL must be a valid URL.',
+    })
     @MinLength(5, { message: 'Website URL must be at least 5 characters long.' })
     @MaxLength(120, { message: 'Website URL must not exceed 100 characters.' })
     website_url?: string;
