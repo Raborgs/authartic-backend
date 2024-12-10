@@ -52,7 +52,6 @@ export class CreateCertificateInfoDto {
 
   @IsNotEmpty({ message: 'Product primarily sell is required.' })
   @IsString({ message: 'Product primarily sell must be a string.' })
-  @MinLength(6, { message: 'Product primarily sell must be at least 6 characters long.' })
   @MaxLength(1000, { message: 'Product primarily sell must not exceed 1000 characters.' })
   product_sell: string;
 
