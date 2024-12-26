@@ -97,6 +97,7 @@ export class CertificateInfoService {
       newCertificateOwner.certificate = savedCertificate;
       newCertificateOwner.is_owner = true;
       newCertificateOwner.user = user;
+      newCertificate.certificate_id = 1;
       await queryRunner.manager.save(newCertificateOwner);
 
       const certificateInfo = existingCertificate.certificateInfo;
@@ -109,7 +110,7 @@ export class CertificateInfoService {
       updateSubscriptionStatusDto.remaining_certificates = subscriptionStatus.remaining_certificates - 1;
       await this.subscriptionStatusService.updateSubscriptionStatus(subscriptionStatus.id, 1, updateSubscriptionStatusDto);
 
-      const svgBuffers = await this.generateSVGBuffers([{ qrCode: qrCodeDataUrl, id: savedCertificate.id }], certificateInfo.name, certificateInfo.description);
+      const svgBuffers = await this.generateSVGBuffers([{ qrCode: qrCodeDataUrl, id: 1, reissueId: savedCertificate.id }], certificateInfo.name, certificateInfo.description);
       const zipBuffer = await this.generateZipBuffer(svgBuffers);
       await this.mailService.sendCertificateInfoZip(user.email, zipBuffer);
 
@@ -268,6 +269,7 @@ export class CertificateInfoService {
         const newCertificate = new Certificate();
         newCertificate.serial_number = `SN-${i + 1}-${Date.now()}`;
         newCertificate.certificateInfo = newCertificateInfo;
+        newCertificate.certificate_id = i + 1;
         const savedCertificate = await queryRunner.manager.save(newCertificate);
         const qrCodeDataUrl = `${this.baseUrl}/api/v1/certificate/claim-certificate/${savedCertificate.id}/scan`;
         newCertificate.qr_code = qrCodeDataUrl;
@@ -277,7 +279,7 @@ export class CertificateInfoService {
         newCertificateOwner.is_owner = true;
         newCertificateOwner.user = user;
         await queryRunner.manager.save(newCertificateOwner);
-        qrCodes.push({ qrCode: qrCodeDataUrl, id: newCertificate.id });
+        qrCodes.push({ qrCode: qrCodeDataUrl, id: newCertificate.certificate_id, reissueId: newCertificate.id });
       }
 
       const updateSubscriptionStatusDto = new UpdateSubscriptionStatusDto();
@@ -303,7 +305,7 @@ export class CertificateInfoService {
     }
   }
 
-  private async generateSVGBuffers(qrCodes: { qrCode: string; id: number }[], name: string, description: string): Promise<Buffer[]> {
+  private async generateSVGBuffers(qrCodes: { qrCode: string; id: number, reissueId: number }[], name: string, description: string): Promise<Buffer[]> {
     const svgBuffers: Buffer[] = [];
     for (const qrCodeData of qrCodes) {
       const qrCodeImageUrl = await QRCode.toDataURL(qrCodeData.qrCode);
@@ -338,6 +340,10 @@ export class CertificateInfoService {
 
   <text x="50%" y="110mm" font-family="Arial" font-size="18" fill="#666" text-anchor="middle">
     ID: ${qrCodeData.id}
+  </text>
+
+  <text x="50%" y="110mm" font-family="Arial" font-size="18" fill="#666" text-anchor="middle">
+   Reissue ID: ${qrCodeData.reissueId}
   </text>
 
   <image x="50%" y="140mm" width="50mm" height="50mm" href="${qrCodeImageUrl}" transform="translate(-25mm)" />
@@ -415,6 +421,7 @@ export class CertificateInfoService {
         const newCertificate = new Certificate();
         newCertificate.serial_number = `SN-${i + 1}-${Date.now()}`;
         newCertificate.certificateInfo = certificateInfo;
+        newCertificate.certificate_id = i + 1;
 
         const savedCertificate = await queryRunner.manager.save(newCertificate);
         const qrCodeDataUrl = `${this.baseUrl}/api/v1/certificate/claim-certificate/${savedCertificate.id}/scan`;
@@ -426,9 +433,8 @@ export class CertificateInfoService {
         newCertificateOwner.certificate = savedCertificate;
         newCertificateOwner.is_owner = true;
         newCertificateOwner.user = user;
-
         await queryRunner.manager.save(newCertificateOwner);
-        qrCodes.push({ qrCode: qrCodeDataUrl, id: newCertificate.id });
+        qrCodes.push({ qrCode: qrCodeDataUrl, id: newCertificate.certificate_id, reissueId: newCertificate.id });
       }
 
       const updateSubscriptionStatusDto = new UpdateSubscriptionStatusDto();

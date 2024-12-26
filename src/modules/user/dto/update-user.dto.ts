@@ -1,9 +1,21 @@
-import { IsString, IsUrl, IsArray,Matches,MinLength,MaxLength, IsEnum, IsNotEmpty, IsOptional, IsDateString, IsInt } from 'class-validator';
+import { IsString, IsUrl, IsArray, Matches, MinLength,IsEmail,MaxLength, IsEnum, IsNotEmpty, IsOptional, IsDateString, IsInt } from 'class-validator';
 
 export class UpdateUserDto {
     @IsOptional()
     @IsString({ message: 'User name must be a string.' })
     user_name?: string;
+
+    @IsOptional()
+    @IsEmail({}, { message: 'Email must be a valid email address.' })
+    email: string;
+
+    @IsOptional()
+    @IsString({ message: 'Current password must be a string.' })
+    old_password: string;
+
+    @IsOptional()
+    @IsString({ message: 'New password must be a string.' })
+    new_password: string;
 
     @IsOptional()
     @IsString({ message: 'Phone number must be a string.' })
@@ -45,7 +57,7 @@ export class UpdateUserDto {
     @IsOptional()
     @IsInt({ message: 'Attachment ID must be an integer.' })
     attachment_id?: number;
-    
+
     @IsOptional()
     @IsInt({ message: 'Validation code ID must be an integer.' })
     validation_code_id?: number;

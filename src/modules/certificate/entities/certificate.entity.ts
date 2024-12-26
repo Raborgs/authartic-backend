@@ -8,6 +8,9 @@ export class Certificate extends DefaultEntity {
 
     @Column({ type: 'varchar', length: 255, nullable: false })
     serial_number: string;
+    
+    @Column({ nullable: true, default: 0 })
+    certificate_id: number;
 
     @Column({ nullable: true })
     qr_code: string;

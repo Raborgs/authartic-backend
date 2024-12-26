@@ -15,9 +15,9 @@ export const typeOrmConfig =
         database: configService.get('DATABASE_NAME'),
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
         synchronize: true,
-        ssl:{
-        rejectUnauthorized: false
-        },
+        // ssl:{
+        // rejectUnauthorized: false
+        // },
         timezone: 'Z',
         namingStrategy: new SnakeNamingStrategy(),
     } as TypeOrmModuleOptions),

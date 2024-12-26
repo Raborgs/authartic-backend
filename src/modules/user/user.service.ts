@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, UnauthorizedException, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { Repository, DataSource, Not } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Attachment } from 'src/modules/attachment/entities/attachment.entity';
@@ -36,18 +36,126 @@ export class UserService {
   ) { }
 
 
+  // async updateUser(updateUserDto: UpdateUserDto, user: User): Promise<Omit<User, 'password'>> {
+  //   const queryRunner = this.dataSource.createQueryRunner();
+  //   await queryRunner.connect();
+  //   await queryRunner.startTransaction();
+
+  //   try {
+  //     const existingUser = await queryRunner.manager.findOne(User, {
+  //       where: { id: user.id },
+  //       relations: ['country'],
+  //     });
+  //     throwIfError(!existingUser, `User not found.`, NotFoundException);
+
+  //     existingUser.user_name = updateUserDto.user_name || existingUser.user_name;
+
+  //     if (updateUserDto.country_id) {
+  //       const country = await queryRunner.manager.findOne(Country, { where: { id: updateUserDto.country_id, is_deleted: false } });
+  //       throwIfError(!country, `Country with ID ${updateUserDto.country_id} not found.`, NotFoundException);
+  //       existingUser.country = country;
+  //     }
+
+  //     if (existingUser.role === UserRoleEnum.USER) {
+  //       const userProfile = await this.userProfileRepository.findOne({ where: { user: { id: existingUser.id } } });
+  //       throwIfError(!userProfile, 'User profile not found.', NotFoundException);
+
+  //       userProfile.phone = updateUserDto.phone || userProfile.phone;
+  //       userProfile.date_of_birth = updateUserDto.date_of_birth ? new Date(updateUserDto.date_of_birth) : userProfile.date_of_birth;
+
+  //       if (updateUserDto.attachment_id) {
+  //         const attachment = await queryRunner.manager.findOne(Attachment, { where: { id: updateUserDto.attachment_id, is_deleted: false } });
+  //         throwIfError(!attachment, `Attachment not found.`, NotFoundException);
+  //         userProfile.attachment = attachment;
+  //       }
+  //       await queryRunner.manager.save(UserProfile, userProfile);
+  //     } else if (existingUser.role === UserRoleEnum.VENDOR) {
+  //       const vendorInfo = await this.vendorInfoRepository.findOne({ where: { user: { id: existingUser.id } } });
+  //       throwIfError(!vendorInfo, 'Vendor info not found.', NotFoundException);
+
+  //       vendorInfo.phone = updateUserDto.phone || vendorInfo.phone;
+  //       vendorInfo.primary_content = updateUserDto.primary_content || vendorInfo.primary_content;
+  //       vendorInfo.about_brand = updateUserDto.about_brand || vendorInfo.about_brand;
+  //       vendorInfo.website_url = updateUserDto.website_url || vendorInfo.website_url;
+  //       vendorInfo.social_media = updateUserDto.social_media || vendorInfo.social_media;
+  //       vendorInfo.other_links = updateUserDto.other_links || vendorInfo.other_links;
+
+  //       if (updateUserDto.attachment_id) {
+  //         const attachment = await queryRunner.manager.findOne(Attachment, { where: { id: updateUserDto.attachment_id, is_deleted: false } });
+  //         throwIfError(!attachment, `Attachment not found.`, NotFoundException);
+  //         vendorInfo.attachment = attachment;
+  //       }
+  //       await queryRunner.manager.save(VendorInfo, vendorInfo);
+  //     }
+
+  //     await queryRunner.manager.save(User, existingUser);
+  //     await queryRunner.commitTransaction();
+
+  //     return await this.findUserById(existingUser.id);
+  //   } catch (error) {
+  //     await queryRunner.rollbackTransaction();
+  //     throw error;
+  //   } finally {
+  //     await queryRunner.release();
+  //   }
+  // }
+
+  private isPasswordValid(password: string): boolean {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,20}$/;
+    return passwordRegex.test(password);
+  }
+
+
   async updateUser(updateUserDto: UpdateUserDto, user: User): Promise<Omit<User, 'password'>> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
+      const { email, old_password, new_password } = updateUserDto;
+
       const existingUser = await queryRunner.manager.findOne(User, {
         where: { id: user.id },
         relations: ['country'],
       });
       throwIfError(!existingUser, `User not found.`, NotFoundException);
 
+      // Update email with validation for uniqueness
+      if (email) {
+        const emailUser = await this.userRepository.findOne({
+          where: { email, id: Not(user.id) }, // Check if another user has this email
+        });
+        throwIfError(emailUser, 'Email is already in use by another user.', ConflictException);
+        existingUser.email = email;
+      }
+
+      if (new_password) {
+        if (!old_password) {
+          throw new BadRequestException(
+            'To update your password, please provide your current password.'
+          );
+        }
+
+        const isOldPasswordValid = await bcrypt.compare(old_password, existingUser.password);
+        if (!isOldPasswordValid) {
+          throw new UnauthorizedException(
+            'The current password you provided is incorrect. Please try again.'
+          );
+        }
+
+        if (!this.isPasswordValid(new_password)) {
+          throw new BadRequestException(
+            'The new password must meet the following requirements: ' +
+            'at least one uppercase letter, one lowercase letter, one number, ' +
+            'one special character, and be 8-20 characters long.'
+          );
+        }
+
+        existingUser.password = await bcrypt.hash(new_password, 10);
+      }
+
+
+      // Update other fields
       existingUser.user_name = updateUserDto.user_name || existingUser.user_name;
 
       if (updateUserDto.country_id) {
@@ -69,7 +177,9 @@ export class UserService {
           userProfile.attachment = attachment;
         }
         await queryRunner.manager.save(UserProfile, userProfile);
-      } else if (existingUser.role === UserRoleEnum.VENDOR) {
+      }
+
+      if (existingUser.role === UserRoleEnum.VENDOR) {
         const vendorInfo = await this.vendorInfoRepository.findOne({ where: { user: { id: existingUser.id } } });
         throwIfError(!vendorInfo, 'Vendor info not found.', NotFoundException);
 
@@ -91,7 +201,7 @@ export class UserService {
       await queryRunner.manager.save(User, existingUser);
       await queryRunner.commitTransaction();
 
-      return await this.findUserById(existingUser.id);
+      return this.findUserById(existingUser.id);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -520,23 +630,33 @@ export class UserService {
     return { message: 'Password updated successfully' };
   }
 
-  async searchIsEmail(searchEmailDto: SearchEmailDto): Promise<string[]> {
+  // async searchIsEmail(searchEmailDto: SearchEmailDto): Promise<string[]> {
+  //   const user = await this.userRepository.findOne({
+  //     where: { email: searchEmailDto.email, role: searchEmailDto.role },
+  //   });
+
+  //   if (user) return [user.email];
+
+  //   const similarEmails = await this.userRepository
+  //     .createQueryBuilder('user')
+  //     .select('user.email')
+  //     .where('user.email LIKE :email', { email: `%${searchEmailDto.email.split('@')[0]}%` })
+  //     .andWhere('user.role = :role', { role: searchEmailDto.role })
+  //     .limit(3)
+  //     .getMany();
+
+  //   return similarEmails.map(user => user.email);
+  // }
+
+  async searchIsEmail(searchEmailDto: SearchEmailDto): Promise<any> {
     const user = await this.userRepository.findOne({
       where: { email: searchEmailDto.email, role: searchEmailDto.role },
     });
 
-    if (user) return [user.email];
-
-    const similarEmails = await this.userRepository
-      .createQueryBuilder('user')
-      .select('user.email')
-      .where('user.email LIKE :email', { email: `%${searchEmailDto.email.split('@')[0]}%` })
-      .andWhere('user.role = :role', { role: searchEmailDto.role })
-      .limit(3)
-      .getMany();
-
-    return similarEmails.map(user => user.email);
+    throwIfError(!user, 'Email does not exist', NotFoundException);
+    return [user.email]
   }
+
 
   async getVendorsCounts(user: User): Promise<{ verifiedVendors: number; unverifiedVendors: number }> {
     checkIsAdmin(user, 'Only Admin can access this data.');
