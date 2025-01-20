@@ -125,16 +125,16 @@ export class MailService {
         let text: string;
         let html: string;
 
-        switch (status) {
+         switch (status) {
             case ReportProblemStatusEnum.OPEN:
                 subject = 'Your Problem Report is Open';
-                text = `Dear ${vendorDetails.user_name},\n\nYour problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} has been opened and is awaiting further action.\n\nThank you for bringing this to our attention.\n\nBest regards,\nAuthartic Team`;
+                text = `Dear ${vendorDetails.vendor_name},\n\nYour problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} has been opened and is awaiting further action.\n\nThank you for bringing this to our attention.\n\nBest regards,\nAuthartic Team`;
                 html = `
                     <div style="width: 100%; background-color: #22477F; padding: 10px 0; text-align: center;">
                         <h1 style="color: white; margin: 0;">Authartic</h1>
                     </div>
                     <div style="padding: 20px;">
-                        <p>Dear ${vendorDetails.user_name},</p>
+                        <p>Dear ${vendorDetails.vendor_name},</p>
                         <p>Your problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} has been opened and is awaiting further action.</p>
                         <p>Thank you for bringing this to our attention.</p>
                         <p>Best regards,</p>
@@ -145,13 +145,13 @@ export class MailService {
                 break;
             case ReportProblemStatusEnum.IN_PROGRESS:
                 subject = 'Your Problem Report is In Progress';
-                text = `Dear ${vendorDetails.user_name},\n\nYour problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} is currently being reviewed and addressed.\n\nThank you for your patience.\n\nBest regards,\nAuthartic Team`;
+                text = `Dear ${vendorDetails.vendor_name},\n\nYour problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} is currently being reviewed and addressed.\n\nThank you for your patience.\n\nBest regards,\nAuthartic Team`;
                 html = `
                     <div style="width: 100%; background-color: #22477F; padding: 10px 0; text-align: center;">
                         <h1 style="color: white; margin: 0;">Authartic</h1>
                     </div>
                     <div style="padding: 20px;">
-                        <p>Dear ${vendorDetails.user_name},</p>
+                        <p>Dear ${vendorDetails.vendor_name},</p>
                         <p>Your problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} is currently being reviewed and addressed.</p>
                         <p>Thank you for your patience.</p>
                         <p>Best regards,</p>
@@ -162,13 +162,13 @@ export class MailService {
                 break;
             case ReportProblemStatusEnum.RESOLVED:
                 subject = 'Your Problem Report is Resolved';
-                text = `Dear ${vendorDetails.user_name},\n\nYour problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} has been resolved. Here is our response:\n\n${responseText}\n\nThank you for bringing this to our attention.\n\nBest regards,\nAuthartic Team`;
+                text = `Dear ${vendorDetails.vendor_name},\n\nYour problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} has been resolved. Here is our response:\n\n${responseText}\n\nThank you for bringing this to our attention.\n\nBest regards,\nAuthartic Team`;
                 html = `
                     <div style="width: 100%; background-color: #22477F; padding: 10px 0; text-align: center;">
                         <h1 style="color: white; margin: 0;">Authartic</h1>
                     </div>
                     <div style="padding: 20px;">
-                        <p>Dear ${vendorDetails.user_name},</p>
+                        <p>Dear ${vendorDetails.vendor_name},</p>
                         <p>Your problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} has been resolved. Here is our response:</p>
                         <p>${responseText}</p>
                         <p>Thank you for bringing this to our attention.</p>
@@ -180,13 +180,13 @@ export class MailService {
                 break;
             case ReportProblemStatusEnum.REJECTED:
                 subject = 'Your Problem Report is Rejected';
-                text = `Dear ${vendorDetails.user_name},\n\nYour problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} has been reviewed and rejected. Here is our response:\n\n${responseText}\n\nThank you for bringing this to our attention.\n\nBest regards,\nAuthartic Team`;
+                text = `Dear ${vendorDetails.vendor_name},\n\nYour problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} has been reviewed and rejected. Here is our response:\n\n${responseText}\n\nThank you for bringing this to our attention.\n\nBest regards,\nAuthartic Team`;
                 html = `
                     <div style="width: 100%; background-color: #22477F; padding: 10px 0; text-align: center;">
                         <h1 style="color: white; margin: 0;">Authartic</h1>
                     </div>
                     <div style="padding: 20px;">
-                        <p>Dear ${vendorDetails.user_name},</p>
+                        <p>Dear ${vendorDetails.vendor_name},</p>
                         <p>Your problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId} has been reviewed and rejected. Here is our response:</p>
                         <p>${responseText}</p>
                         <p>Thank you for bringing this to our attention.</p>
@@ -198,13 +198,13 @@ export class MailService {
                 break;
             default:
                 subject = 'Response to Your Problem Report';
-                text = `Dear ${vendorDetails.user_name},\n\nWe have reviewed your problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId}. Here is our response:\n\n${responseText}\n\nThank you for bringing this to our attention.\n\nBest regards,\nAuthartic Team`;
+                text = `Dear ${vendorDetails.vendor_name},\n\nWe have reviewed your problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId}. Here is our response:\n\n${responseText}\n\nThank you for bringing this to our attention.\n\nBest regards,\nAuthartic Team`;
                 html = `
                     <div style="width: 100%; background-color: #22477F; padding: 10px 0; text-align: center;">
                         <h1 style="color: white; margin: 0;">Authartic</h1>
                     </div>
                     <div style="padding: 20px;">
-                        <p>Dear ${vendorDetails.user_name},</p>
+                        <p>Dear ${vendorDetails.vendor_name},</p>
                         <p>We have reviewed your problem report (Report ID: ${reportId}) regarding Certificate ID: ${certificateId}. Here is our response:</p>
                         <p>${responseText}</p>
                         <p>Thank you for bringing this to our attention.</p>
@@ -217,7 +217,7 @@ export class MailService {
         }
 
         const data = {
-            from: this.adminEmail,
+            from: this.baseEmail,
             to: [vendorDetails.email],
             subject: subject,
             text: text,
