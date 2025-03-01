@@ -39,10 +39,18 @@ export class SubscriptionController {
 
     throwIfError(isNaN(planId), 'Invalid plan ID.' )
     
-    // return this.subscriptionPlanService.activatePlan(planId, user);
     return this.subscriptionStatusService.activatePlan(planId, user);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Post('check-eligibility/:id')
+  checkEligibility(@Param('id') id: string, @GetUser() user: User) {
+    const planId = parseInt(id, 10);
+
+    throwIfError(isNaN(planId), 'Invalid plan ID.' )
+    
+    return this.subscriptionStatusService.checkEligibility(planId, user);
+  }
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateSubscriptionPlanDto: UpdateSubscriptionPlanDto) {
   //   return this.subscriptionPlanService.update(+id, updateSubscriptionPlanDto);

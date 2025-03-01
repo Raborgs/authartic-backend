@@ -18,6 +18,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { FontModule } from './modules/font/font.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { UserModule } from './modules/user/user.module';
+import { StripeModule } from './modules/stripe/stripe.module';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { UserModule } from './modules/user/user.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-
+    StripeModule, 
     TypeOrmModule.forRootAsync(typeOrmConfig),
     ScheduleModule.forRoot(),
     AttachmentModule,
@@ -36,7 +37,7 @@ import { UserModule } from './modules/user/user.module';
     CertificateModule,
     SubscriptionPlanModule,
     AdminModule,
-    FontModule,
+    FontModule
 
   ],
   controllers: [AppController],

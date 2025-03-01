@@ -14,12 +14,16 @@ export class RegisterDto {
 
     @IsNotEmpty({ message: 'Password is required.' })
     @IsString({ message: 'Password must be a string.' })
-    @Matches(/(?=.*[a-z])/, { message: 'Password must contain at least one lowercase letter.' }) 
-    @Matches(/(?=.*[A-Z])/, { message: 'Password must contain at least one uppercase letter.' }) 
-    @Matches(/(?=.*[0-9])/, { message: 'Password must contain at least one number.' }) 
-    @Matches(/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/, { message: 'Password must contain at least one special character.' }) 
-    @MinLength(8, { message: 'Password must be at least 8 characters long.' }) 
-    @MaxLength(20, { message: 'Password cannot exceed 20 characters.' }) 
+    // @Matches(/(?=.*[a-z])/, { message: 'Password must contain at least one lowercase letter.' }) 
+    // @Matches(/(?=.*[A-Z])/, { message: 'Password must contain at least one uppercase letter.' }) 
+    // @Matches(/(?=.*[0-9])/, { message: 'Password must contain at least one number.' }) 
+    // @Matches(/(?=.*[\W_])/, { message: 'Password must include at least one special character (e.g., @, #, +, %, etc).' })
+    // @MinLength(8, { message: 'Password must be at least 8 characters long.' }) 
+    // @MaxLength(20, { message: 'Password cannot exceed 20 characters.' }) 
+    @Matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,20}$/,
+        { message: 'Password must be 8-20 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., @, #, +, %, etc.).' }
+      )
     password: string;
 
     @IsNotEmpty({ message: 'Role is required.' })

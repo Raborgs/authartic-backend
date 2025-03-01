@@ -106,6 +106,37 @@ export class SubscriptionStatusService {
         return updatedUser;
     }
     
+    async checkEligibility(subscriptionPlanId: number, user: User): Promise<any> {
+        throwIfError(!subscriptionPlanId, 'Subscription ID is required.');
+        throwIfError(!user, 'User token is required.', UnauthorizedException);
+        throwIfError((user.role !== UserRoleEnum.VENDOR), 'Only vendors can activate subscription plans.', ForbiddenException);
+    
+        const isUser = await this.userRepository.findOne({ where: { id: user.id } });
+        throwIfError(!isUser, 'User not found.', NotFoundException);
+    
+        const vendorInfo = await this.vendorInfoRepository.findOne({ where: { user: { id: user.id } } });
+        throwIfError(!vendorInfo, 'Vendor info not found.', NotFoundException);
+        throwIfError(!vendorInfo.is_verified_email, 'Please verify your email first. We have sent an activation email to your email address.');
+    
+        const subscriptionPlan = await this.subscriptionPlanRepository.findOne({
+            where: { id: subscriptionPlanId },
+            relations: ['subscriptionPlanFeatures'],
+        });
+        throwIfError(!subscriptionPlan, 'Subscription plan not found.', NotFoundException);
+    
+        const feature = subscriptionPlan.subscriptionPlanFeatures.find(
+            (feature) => feature.name === 'Free Monthly Certificates'
+        );
+        throwIfError(!feature, 'Feature "Free Monthly Certificates" not found.', NotFoundException);
+    
+        const numberOfCertificates = feature.value ? parseInt(feature.value, 10) : 0;
+    
+        const userDetails = await this.userService.findUserById(user.id);
+        throwIfError(!userDetails.validation_code, 'Your account is not verified by admin. Please contact the admin.', UnauthorizedException);
+    
+        return { success: true, message: "User is eligible for subscription." };
+    }
+    
     async updateSubscriptionStatus(subscriptionStatusId: number, certificatesToIssue: number, updateSubscriptionStatusDto: UpdateSubscriptionStatusDto): Promise<SubscriptionStatus> {
 
 

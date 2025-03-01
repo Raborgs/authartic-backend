@@ -942,4 +942,12 @@ export class UserService {
     const unverifiedUsers = totalUsers - verifiedUsers;
     return { unverifiedUsers, verifiedUsers };
   }
+
+  // async findUserById(userId: number): Promise<User | null> {
+  //   return this.userRepository.findOne({ where: { id: userId } });
+  // }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { email } });
+  }
 }

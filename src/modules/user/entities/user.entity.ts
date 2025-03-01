@@ -21,6 +21,9 @@ export class User extends DefaultEntity {
         default: UserRoleEnum.USER
     })
     role: UserRoleEnum;
+    
+    @Column({ default: true })
+    is_active_account: boolean;
 
     @ManyToOne(() => Country, country => country.users, { nullable: true })
     @JoinColumn({ name: 'country_id' })

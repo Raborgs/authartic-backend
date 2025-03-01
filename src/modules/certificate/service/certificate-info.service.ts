@@ -263,6 +263,12 @@ export class CertificateInfoService {
 
       await queryRunner.manager.save(newCertificateInfo);
 
+      if (createCertificateInfoDto.saved_draft) {
+        await queryRunner.commitTransaction();
+        res.status(201).json({ message: 'Certificate draft saved successfully.' });
+        return newCertificateInfo;
+      }
+
       const qrCodes = [];
       const svgBuffers: Buffer[] = [];
       for (let i = 0; i < createCertificateInfoDto.number_of_certificate; i++) {
@@ -350,9 +356,7 @@ export class CertificateInfoService {
 
   <line x1="20mm" y1="260mm" x2="190mm" y2="260mm" stroke="#dcdcdc" stroke-width="2" />
 
-  <text x="50%" y="275mm" font-family="Arial" font-size="14" fill="#999" text-anchor="middle">
-    This certificate is proudly presented to ${name}.
-  </text>
+
 </svg>
 
       `;
@@ -360,7 +364,9 @@ export class CertificateInfoService {
     }
     return svgBuffers;
   }
-
+  // <text x="50%" y="275mm" font-family="Arial" font-size="14" fill="#999" text-anchor="middle">
+  //   This certificate is proudly presented to ${name}.
+  // </text>
   private async generateZipBuffer(svgBuffers: Buffer[]): Promise<Buffer> {
     const archive = archiver('zip');
     const zipBuffers: Buffer[] = [];
