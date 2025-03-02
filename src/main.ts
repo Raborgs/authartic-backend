@@ -4,21 +4,19 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './modules/common/error-filters/http-exception.filter';
 import * as bodyParser from 'body-parser';
-// import { Request, Response } from 'express';
-import { json, urlencoded } from 'express';
 import * as express from 'express';
 // Load environment variables from .env file
 dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-   // ✅ Apply raw body middleware *ONLY* for Stripe webhook route
+   
    app.use(
     '/api/v1/stripe/webhook',
-    express.raw({ type: 'application/json' }) // Ensures Stripe gets raw body
+    express.raw({ type: 'application/json' }) 
   );
 
-  // ✅ Apply JSON middleware *for other routes*
+  
   app.use(bodyParser.json());
   // Global validation pipe configuration
   app.useGlobalPipes(new ValidationPipe({
