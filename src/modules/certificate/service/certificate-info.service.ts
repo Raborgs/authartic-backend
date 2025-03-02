@@ -128,7 +128,7 @@ export class CertificateInfoService {
     name: string | null,
     saved_draft: boolean | false,
     page: number = 1,
-    limit: number = 8,
+    limit: number = 999,
 
     user: User
   ): Promise<{ data: GetCertificateInfoDto[], total: number, pages: number }> {
@@ -453,7 +453,10 @@ export class CertificateInfoService {
       const zipBuffer = await this.generateZipBuffer(svgBuffers);
 
       await this.mailService.sendCertificateInfoZip(user.email, zipBuffer);
-      certificateInfo.saved_draft = false
+      certificateInfo.saved_draft = false;
+      certificateInfo.issued = number_of_certificate ;
+      certificateInfo.issued_date = new Date(Date.now());
+
       await queryRunner.manager.save(certificateInfo);
       await queryRunner.commitTransaction();
 

@@ -48,7 +48,7 @@ export class CertificateInfoController {
     @Query('name') name: string | null,
     @Query('saved_draft') saved_draft: boolean | false,
     @Query('page', new ParseIntPipe({ errorHttpStatusCode: 400, optional: true })) page = 1,
-    @Query('limit', new ParseIntPipe({ errorHttpStatusCode: 400, optional: true })) limit = 8,
+    @Query('limit', new ParseIntPipe({ errorHttpStatusCode: 400, optional: true })) limit = 999,
     @GetUser() user: User,
   ): Promise<{ data: GetCertificateInfoDto[], total: number }> {
 
